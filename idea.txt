@@ -1,0 +1,1 @@
+I want to create a app using opencv and furthur libraries in futures i want to recognize the whole body and count the number of pushup a one can do.
