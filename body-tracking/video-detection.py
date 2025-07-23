@@ -3,7 +3,8 @@ import mediapipe as mp
 
 mp_pose = mp.solutions.pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7)
 mp_drawing = mp.solutions.drawing_utils
-cap = cv2.VideoCapture('body-detection2.mp4')
+video_path = 'body-detection2.mp4'
+cap = cv2.VideoCapture(video_path)
 
 while True:
     ret, frame = cap.read()
