@@ -5,17 +5,17 @@ import mediapipe as mp
 # Initializing mediapipe pose class.
 mp_pose = mp.solutions.pose
 # Setting up the Pose model for images.
-pose_img = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.5, model_complexity=1)
+pose_img = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.7, model_complexity=1)
 # Setting up the Pose model for videos.
-pose_video = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5,
-                          min_tracking_confidence=0.5, model_complexity=1)
+pose_video = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.7,
+                          min_tracking_confidence=0.7, model_complexity=1)
 
 # Initializing mediapipe drawing class to draw landmarks on specified image.
 mp_drawing = mp.solutions.drawing_utils
 
 
 def estimPose_img(input_file, pose=pose_img, landmarks_c=(234, 63, 247), connection_c=(117, 249, 77),
-                  thickness=20, circle_r=10, display=True):
+                  thickness=1, circle_r=1, display=True):
     # Read the input image
     if isinstance(input_file, str):
         input_img = cv2.imread(input_file)
@@ -71,4 +71,4 @@ def estimPose_img(input_file, pose=pose_img, landmarks_c=(234, 63, 247), connect
         # Return the output image and the found landmarks.
         return output_img, landmarks
 
-estimPose_img('male-image.jpg')
+estimPose_img('media/dance-pers.jpg')
