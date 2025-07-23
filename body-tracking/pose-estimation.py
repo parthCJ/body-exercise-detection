@@ -15,7 +15,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 
 def estimPose_img(input_file, pose=pose_img, landmarks_c=(234, 63, 247), connection_c=(117, 249, 77),
-                  thickness=1, circle_r=1, display=True):
+                  thickness=2, circle_r=2, display=True):
     # Read the input image
     if isinstance(input_file, str):
         input_img = cv2.imread(input_file)
@@ -71,4 +71,4 @@ def estimPose_img(input_file, pose=pose_img, landmarks_c=(234, 63, 247), connect
         # Return the output image and the found landmarks.
         return output_img, landmarks
 
-estimPose_img('media/dance-pers.jpg')
+estimPose_img('media/dance-man-pers.jpg')
