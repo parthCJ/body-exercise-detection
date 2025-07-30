@@ -10,9 +10,10 @@ mp_pose = mp.solutions.pose
 def calculate_angle(a, b, c):
     """Calculates the angle of a joint given three landmark points."""
     a = np.array(a)  # First point
-    b = np.array(b)  # Mid point
+    b = np.array(b)  # Mid pointg
     c = np.array(c)  # End point
 
+    # converting the angles to the radians.
     radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
     angle = np.abs(radians * 180.0 / np.pi)
 
