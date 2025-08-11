@@ -26,10 +26,11 @@ def calculate_angle(a, b, c):
 # --- State and Counter Variables ---
 pushup_state = "up"
 pushup_count = 0
+video_path = "media/psuh-ups.mp4"  # <--- IMPORTANT: SET YOUR VIDEO PATH HERE
 
 # --- Video Capture ---
 # THE ONLY CHANGE NEEDED IS HERE: from file path to 0
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(video_path)
 
 with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
