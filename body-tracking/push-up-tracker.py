@@ -28,8 +28,10 @@ pushup_state = "up"
 pushup_count = 0
 video_path = "media/psuh-ups.mp4"  # <--- IMPORTANT: SET YOUR VIDEO PATH HERE
 
+# --- ADD THIS: Set a scale factor for the screen size ---
+scale_factor = 0.7 # 70% of original size. Adjust as needed.
+
 # --- Video Capture ---
-# THE ONLY CHANGE NEEDED IS HERE: from file path to 0
 cap = cv2.VideoCapture(video_path)
 
 with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -41,6 +43,12 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
         # Flip the image horizontally for a selfie-view display
         image = cv2.flip(image, 1)
+
+        # --- ADD THIS BLOCK TO RESIZE THE FRAME ---
+        width = int(image.shape[1] * scale_factor)
+        height = int(image.shape[0] * scale_factor)
+        image = cv2.resize(image, (width, height))
+        # --- END OF RESIZING BLOCK ---
 
         # Convert the BGR image to RGB before processing
         image.flags.writeable = False
