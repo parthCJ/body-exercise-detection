@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import csv
 
 # Initialize MediaPipe Pose solution
 mp_drawing = mp.solutions.drawing_utils
@@ -110,3 +111,80 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
 cap.release()
 cv2.destroyAllWindows()
+from datetime import datetime
+
+today_date = datetime.now().strftime("%Y-%m-%d")
+reps_count = pushup_count
+csv_filename = "pushup_log.csv"
+
+data_row = [today_date, reps_count]
+
+file_exists = False
+try:
+    with open(csv_filename, 'r') as file:
+        if file.read(1):
+            file_exists = True
+except FileNotFoundError:
+    file_exists = False
+
+with open(csv_filename, 'a', newline='') as file:
+    writer = csv.writer(file)
+    if not file_exists:
+        writer.writerow(['date', 'reps'])
+    writer.writerow(data_row)
+
+print(f"Push-up workout saved! Date: {today_date}, Reps: {reps_count}")
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+# Load the data from your push-up CSV file
+try:
+    df = pd.read_csv(csv_filename)
+except FileNotFoundError:
+    print("Error: pushup_log.csv not found. Run the push-up counter script first to create it.")
+    exit()
+
+# Convert the 'date' column to actual datetime objects
+df['date'] = pd.to_datetime(df['date'])
+df = df.sort_values(by='date')
+
+# --- ML PART: Prepare data for the model ---
+# The model needs numerical data, so we convert dates to "days since first workout"
+df['days_since_start'] = (df['date'] - df['date'].min()).dt.days
+
+# X is our feature (days), y is our target (reps)
+X = df[['days_since_start']]
+y = df['reps']
+
+# --- ML PART: Train the Linear Regression model ---
+model = LinearRegression()
+model.fit(X, y)
+
+# --- ML PART: Get the trend line from the model's predictions ---
+y_pred = model.predict(X)
+
+
+# --- Create the Plot using Matplotlib ---
+plt.style.use('seaborn-v0_8-darkgrid') # Use a nice-looking style
+fig, ax = plt.subplots(figsize=(10, 6)) # Set the figure size
+
+# Plot the ACTUAL data as scatter points
+ax.scatter(df['date'], df['reps'], color='mediumspringgreen', label='Actual Reps')
+
+# Plot the ML PREDICTION as a trend line
+ax.plot(df['date'], y_pred, color='cyan', linestyle='--', linewidth=2, label='ML Trend Line')
+
+# Format the plot to make it look good
+ax.set_title("Push-up Progress and ML Trend 💪", fontsize=16)
+ax.set_xlabel("Date", fontsize=12)
+ax.set_ylabel("Number of Reps", fontsize=12)
+ax.tick_params(axis='x', labelrotation=45) # Rotate date labels for readability
+ax.legend()
+plt.tight_layout() # Adjust layout to make room for labels
+
+# Display the plot in a new window
+plt.show()

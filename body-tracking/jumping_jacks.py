@@ -1,6 +1,8 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import csv
+from datetime import datetime
 
 # Initialize MediaPipe Pose solution
 mp_drawing = mp.solutions.drawing_utils
@@ -161,3 +163,126 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
 cap.release()
 cv2.destroyAllWindows()
+
+# --- ADD THIS BLOCK TO SAVE YOUR DATA ---
+
+# Get the current date in a simple format (YYYY-MM-DD)
+today_date = datetime.now().strftime("%Y-%m-%d")
+reps_count = jj_count
+csv_filename = "umping_jack_log.csv"
+
+# The data we want to save
+data_row = [today_date, reps_count]
+
+# Check if the file already exists to decide whether to write the header
+file_exists = False
+try:
+    with open(csv_filename, 'r') as file:
+        # If the file is not empty, it exists and has content
+        if file.read(1):
+            file_exists = True
+except FileNotFoundError:
+    file_exists = False
+
+# Open the file in 'append' mode ('a') to add a new row
+# newline='' prevents extra blank rows
+with open(csv_filename, 'a', newline='') as file:
+    writer = csv.writer(file)
+    # If the file is new, write the header first
+    if not file_exists:
+        writer.writerow(['date', 'reps'])
+
+    # Write the actual data
+    writer.writerow(data_row)
+
+print(f"Workout saved! Date: {today_date}, Reps: {reps_count}")
+# --- END OF SAVING BLOCK ---
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the data from your CSV file
+try:
+    df = pd.read_csv(csv_filename)
+except FileNotFoundError:
+    print("Error: workout_log.csv not found. Run the jumping jack script first to create it.")
+    exit()
+
+# Convert the 'date' column to actual datetime objects
+df['date'] = pd.to_datetime(df['date'])
+
+# Sort the data by date just in case it's out of order
+df = df.sort_values(by='date')
+
+# --- Create the Plot ---
+plt.style.use('seaborn-v0_8-darkgrid') # Use a nice-looking style
+fig, ax = plt.subplots(figsize=(10, 6)) # Set the figure size
+
+# Plot the data: date on the x-axis, reps on the y-axis
+ax.plot(df['date'], df['reps'], marker='o', linestyle='-', color='b', label='Jumping Jack Reps')
+
+# Format the plot to make it look good
+ax.set_title("Jumping Jack Progress Over Time", fontsize=16)
+ax.set_xlabel("Date", fontsize=12)
+ax.set_ylabel("Number of Reps", fontsize=12)
+ax.tick_params(axis='x', labelrotation=45) # Rotate date labels for readability
+ax.legend()
+plt.tight_layout() # Adjust layout to make room for labels
+
+# Display the plot
+plt.show()
+
+## Step 3: Add Machine Learning for Trend Analysis 🤖
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+# Load the data from your CSV file
+try:
+    df = pd.read_csv(csv_filename)
+except FileNotFoundError:
+    print("Error: workout_log.csv not found. Run the jumping jack script first to create it.")
+    exit()
+
+# Convert the 'date' column to actual datetime objects
+df['date'] = pd.to_datetime(df['date'])
+df = df.sort_values(by='date')
+
+# --- ML PART: Prepare data for the model ---
+# The model needs numerical data, so we convert dates to "days since first workout"
+df['days_since_start'] = (df['date'] - df['date'].min()).dt.days
+
+# X is our feature (days), y is our target (reps)
+X = df[['days_since_start']]
+y = df['reps']
+
+# --- ML PART: Train the Linear Regression model ---
+model = LinearRegression()
+model.fit(X, y)
+
+# --- ML PART: Get the trend line from the model's predictions ---
+y_pred = model.predict(X)
+
+
+# --- Create the Plot ---
+plt.style.use('seaborn-v0_8-darkgrid')
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Plot the ACTUAL data as scatter points
+ax.scatter(df['date'], df['reps'], color='b', label='Actual Reps')
+
+# Plot the ML PREDICTION as a trend line
+ax.plot(df['date'], y_pred, color='r', linestyle='--', linewidth=2, label='ML Trend Line')
+
+# Format the plot
+ax.set_title("Jumping Jack Progress and ML Trend", fontsize=16)
+ax.set_xlabel("Date", fontsize=12)
+ax.set_ylabel("Number of Reps", fontsize=12)
+ax.tick_params(axis='x', labelrotation=45)
+ax.legend()
+plt.tight_layout()
+
+# Display the plot
+plt.show()
